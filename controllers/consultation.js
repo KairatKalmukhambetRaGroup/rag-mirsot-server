@@ -69,8 +69,8 @@ export const getConsultations = async(req, res) => {
         }else if(status === 'archive'){
             if(!year)
                 return res.status(400).json({error: "Missing or invalid required parameter"});
-            const count = await Consultation.count({year});
-            const consultations = await Consultation.find({year}).select('name email direction service lang').skip(skip).limit(limit).sort('-createdAt');
+            const count = await Consultation.count({year, status: 'archive'});
+            const consultations = await Consultation.find({year, status: 'archive'}).select('name email direction service lang').skip(skip).limit(limit).sort('-createdAt');
             const total = Math.ceil(count/limit);
             return res.json({consultations, page,total, limit, count});
         }   
@@ -88,7 +88,7 @@ export const getAllArchiveByYear = async(req, res) => {
     }
     
     try {
-        const consultations = await Consultation.find({year}).select('name email direction service lang date').sort('-createdAt');
+        const consultations = await Consultation.find({year, status: 'archive'}).select('name email direction service lang date').sort('-createdAt');
         return res.json(consultations);
     } catch (error) {
         console.log(error);

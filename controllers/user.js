@@ -3,7 +3,9 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 import generator from 'generate-password';
 import nodemailer from 'nodemailer';
+import hbs from 'nodemailer-express-handlebars'
 import Role from '../models/role.js';
+import path from "path";
 
 const transporter = nodemailer.createTransport({
     port: 465,               // true for 465, false for other ports
@@ -14,6 +16,16 @@ const transporter = nodemailer.createTransport({
          },
     secure: true,
     });
+const hbsOptions = {
+    viewEngine: {
+        extName: '.handlebars',
+        partialsDir: path.resolve('./public/pages'),
+        defaultLayout: false
+    },
+    viewPath: path.resolve('./public/pages'),
+    extName: '.handlebars',
+};
+transporter.use('compile', hbs(hbsOptions));
 
 export const login = async (req, res) => {
     const {email, password, remember} = req.body;
