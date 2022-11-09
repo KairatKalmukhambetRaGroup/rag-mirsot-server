@@ -4,8 +4,10 @@ import User from "../models/user.js";
 import generator from 'generate-password';
 import nodemailer from 'nodemailer';
 import hbs from 'nodemailer-express-handlebars'
+import handlebars from 'handlebars';
 import Role from '../models/role.js';
 import path from "path";
+import fs from "fs";
 
 const transporter = nodemailer.createTransport({
     port: 465,               // true for 465, false for other ports
@@ -63,6 +65,11 @@ export const getUsers = async (req, res) => {
 export const addUser = async (req, res) => {
     const {email} = req.body;
     
+    // const filePath = path.join(__dirname, '../public/pages/newAdmin.html');
+    const source = fs.readFileSync('./public/pages/newAdmin.html', 'utf-8').toString();
+    const template = handlebars.compile(source);
+
+
     try {
         const existingUser = await User.findOne({email});
         if(existingUser) 
@@ -76,13 +83,18 @@ export const addUser = async (req, res) => {
 
         const user = new User({...req.body, password: hashedPassword});
         await user.save();  
+        const replacements = {
+            email: email,
+            password: password
+        };
+        const htmlToSend = template(replacements);
 
         const mailData = {
             from: 'qashqyn291@gmail.com',
             to: email,
             subject: 'Account creation',
-            text: 'Welcome to our family!',
-            html: `<br>Your password: ${password}<br/>`,
+            text: `Username: ${email}\nPassword: ${password}`,
+            html: htmlToSend
         };
         transporter.sendMail(mailData, (err, info)=>{
             if(err)

@@ -13,6 +13,7 @@ import langRoutes from './routes/lang.js';
 import consultationRoutes from './routes/consultation.js';
 import pageRoutes from './routes/page.js';
 import visitorRoutes from './routes/visitor.js';
+import partnerRoutes from './routes/partner.js';
 
 const app = express();
 dotenv.config();
@@ -33,6 +34,8 @@ app.use('/langs', langRoutes);
 app.use('/consultations', consultationRoutes);
 app.use('/pages', pageRoutes);
 app.use('/visitors', visitorRoutes);
+app.use('/partners', partnerRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 
