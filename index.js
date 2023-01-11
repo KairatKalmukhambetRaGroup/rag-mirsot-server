@@ -14,6 +14,8 @@ import consultationRoutes from './routes/consultation.js';
 import pageRoutes from './routes/page.js';
 import visitorRoutes from './routes/visitor.js';
 import partnerRoutes from './routes/partner.js';
+import companyRoutes from './routes/company.js';
+import ragZakyatRoutes from './routes/rag_zakyat/index.js';
 
 const app = express();
 dotenv.config();
@@ -35,6 +37,9 @@ app.use('/consultations', consultationRoutes);
 app.use('/pages', pageRoutes);
 app.use('/visitors', visitorRoutes);
 app.use('/partners', partnerRoutes);
+app.use('/companies', companyRoutes);
+
+app.use('/rag_zakyat', ragZakyatRoutes);
 
 
 const PORT = process.env.PORT || 5000;

@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
+import Company from "../models/company.js";
 import generator from 'generate-password';
 import nodemailer from 'nodemailer';
 import hbs from 'nodemailer-express-handlebars'
@@ -33,7 +34,7 @@ export const login = async (req, res) => {
     const {email, password, remember} = req.body;
 
     try {
-        const existingUser = await User.findOne({email}).populate('role');
+        const existingUser = await User.findOne({email}).populate('role').populate('companies');
         if(!existingUser)
             return res.status(404).json({error: "User does not exist."});
         
@@ -101,6 +102,28 @@ export const addUser = async (req, res) => {
                 console.log(err);
         });
 
+        return res.status(200).json();      
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({error: "Something went wrong."});
+    }
+}
+
+export const addCompany = async (req, res) => {
+    const {email, companyName} = req.body;
+    try {
+        const existingUser = await User.findOne({email});
+        if(!existingUser) 
+            return res.status(404).json({error: "User does not exist."});
+
+        if(!companyName)
+            return res.status(400).json({error: "Missing or invalid required parameter"})
+
+        const company = await Company.findOne({name: companyName});
+        if(!company)
+            return res.status(404).json({error: "Company does not exist."});
+
+        await User.findByIdAndUpdate(existingUser._id, {$addToSet: {companies: company.id}});
         return res.status(200).json();      
     } catch (error) {
         console.log(error);
