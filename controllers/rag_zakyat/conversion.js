@@ -42,6 +42,16 @@ export const updateRate = async (req, res) => {
 }
 
 export const getConversionRate = async (req, res) => {
+    const {start, end} = req.query;
+    if(!start || !end){
+        return res.status(400).json({error: "Missing or invalid required parameter"});
+    }
+    const startDate = new Date(start);
+    const endDate = new Date(new Date(new Date(end).setUTCHours(0,0,0,0)).valueOf() + 1000*60*60*24);
+    // VALIDATE DATE
+    if(!(startDate instanceof Date && !isNaN(startDate)) || !(endDate instanceof Date && !isNaN(endDate)) ||  startDate >= endDate){
+        return res.status(400).json({error: "Missing or invalid required parameter"});
+    }
     try {
         var conversion = {total: 0};
         const buttons = await ConversionButton.find();
@@ -49,7 +59,7 @@ export const getConversionRate = async (req, res) => {
             conversion[btn.name] = 0;
         }
 
-        for await (const visitor of Visitor.find().populate('buttons')){
+        for await (const visitor of Visitor.find({createdAt: {$gte: startDate, $lt: endDate}}).populate('buttons')){
             conversion.total ++;
             visitor.buttons.map((btn)=>{
                 conversion[btn.name]++;
